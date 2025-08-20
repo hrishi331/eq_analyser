@@ -11,7 +11,8 @@ st.header("Equity Resistance-Support Levels")
 script = pd.read_csv('nifty500.csv')
 
 script = st.multiselect("Select Script : ",options=script['Tickers'],
-                        default=None)
+                        default=None,
+                        max_selections=1)
 
 st.write("Select Data Window")
 col1,col2 = st.columns(spec=2)
@@ -56,12 +57,15 @@ for i in df:
 text = """
 1. Selcting Low will give you support levels
 2. Selecting High will give you resistance levels
+3. Selecting Close will give you significant levels with its classification on both side of
+CMP
 """
-olhc = st.radio("Select OLHC : ", options=['Supports','Resistances'],
+olhc = st.radio("Select OLHC : ", options=['Levels','Supports','Resistances'],
                 help=text,
                 label_visibility='visible')
 
-d = {'Supports' : 'Low',
+d = {'Levels' : 'Close'
+    ,'Supports' : 'Low',
      'Resistances' : 'High'}
 
 data = df[d[olhc]].value_counts().reset_index()
@@ -80,7 +84,7 @@ def classes(i):
     else:
         return "POWERFUL"
     
-data['count_test'] = data['count'].apply(classes)
+data['Class'] = data['count'].apply(classes)
 
 current_price = df[d[olhc]].iloc[-1]
 
@@ -90,4 +94,19 @@ elif olhc == 'High':
     data = data[data['High']>current_price]
 else :
     pass
-st.write(data)
+
+text3 = """
+1. This show how important the level is.
+2. This level can be resistance,support [based on viz. high and low] 
+3. or just a level[based on close].
+"""
+significance = st.multiselect(label='Select significance : ',
+                                options=['WEAK','MODERATE','STRONG','POWERFUL'],
+                                default='POWERFUL',
+                                help = text3,
+                                label_visibility='visible')
+
+if st.button("SUBMIT"):
+    st.subheader("RESULTS",divider=True)
+    data = data[data['Class'].isin(significance)]
+    st.write(data)
