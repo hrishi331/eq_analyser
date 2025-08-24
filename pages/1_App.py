@@ -88,9 +88,9 @@ data['Class'] = data['count'].apply(classes)
 
 current_price = df[d[olhc]].iloc[-1]
 
-if olhc == 'Low':
+if olhc == 'Supports':
     data = data[data['Low']<current_price]
-elif olhc == 'High':
+elif olhc == 'Resistances':
     data = data[data['High']>current_price]
 else :
     pass
